@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title>Calculating a Location from a Mouse Click</title>
+    <!-- http://127.0.0.1:5000/static/styles/omv/miami/normal.day.yam -->
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script type="text/javascript" src="{{url_for('static',filename = 'mapsjs-service.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static',filename = 'mapsjs-mapevents.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static',filename = 'mapsjs-ui.js')}}"></script>
+    <link rel="stylesheet" href="{{url_for('static',filename = 'mapsjs-ui.css')}}">
+    <style type="text/css">
+      #map{
+        height : 700px;
+      }
+      .log {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        height: 150px;
+        width: 250px;
+        overflow: scroll;
+        background: white;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 12px;
+      }
+      .log-entry {
+        padding: 5px;
+        border-bottom: 1px solid #d0d9e9;
+      }
+      .log-entry:nth-child(odd) {
+          background-color: #e1e7f1;
+      }
+    </style>
+
+  <body id="markers-on-the-map">
+    <!-- <script>
+      console.log("Hello");
+      // url = "http://jsonplaceholder.typicode.com/posts";
+      url = "http://127.0.0.1:5000/abc"
+      fetch(url).then((response)=>{
+        return response.text();
+      }).then((data)=>{
+        console.log(data);
+      })
+      </script> -->
+    <input type="text" id="area" name="Location" style="width: 300px;"/>
+    <input list="Entity" name="Entity" id="browser">
+  <datalist id="Entity">
+    <option value="Lakes & Reservoirs"></option>
+    <option value="Airports">
+    <option value="Railway Stations">
+    <option value="Sea ports">
+    <option value="Beaches">
+  </datalist>
+  <input type="number" id="distance" name="Distance"/>
+  <button type="submit" onclick="getdata()">Submit</button>
+    <p>This example displays a map of the world. Clicking on the map displays an alert box containing the latitude and longitude of the location pressed.</p>
+    <div id="map"></div>
+    <h1 id="choice"></h1>
+    <table id="myTable">
+      <thead>
+        <th>Name</th>
+        <th>Distance</th>
+      </thead>
+    </table>
+    <br>
+    <h3>Code</h3>
+    <p>The <code>tap</code> event holds the x and y screen coordinates of the location clicked.
+      These are converted to a latitude and longitude using the <code>map.screenToGeo()</code> method.</p>
+    </script> -->
+    <script type="text/javascript">
+    var lat = null;
+    var lon = null;
+    var table = document.getElementById("myTable");
+    function getdata(){
+      console.log(lat,lon);
+      d = document.getElementById("browser");
+      dist = document.getElementById("distance")
+      url = "http://127.0.0.1:5000/"+ (lat).toString()+"_"+(lon).toString()+"_"+d.value+"_"+dist.value;
+      fetch(url).then((response)=>{
+        return response.json();
+      }).then((data)=>{
+        choice = document.getElementById("choice");
+        choice.value = d.value;
+        var Parent = document.getElementById("myTable");
+        while(Parent.hasChildNodes())
+        {
+          Parent.removeChild(Parent.firstChild);
+        }
+        console.log(Parent);
+        for (let i = 0; i < data['list'].length; i++) {
+           var row = table.insertRow(-1);
+           var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var anc = document.createElement('a');
+            anc.innerText = data['list'][i][1];
+            anc.href = data['list'][i][0];
+            anc.target = "_blank";
+            cell1.appendChild(anc);
+            cell2.innerHTML = data['list'][i][4];
+      }
+        console.log(data);
+      })
+    }
+function setUpClickListener(map) {
+  // Attach an event listener to map display
+  // obtain the coordinates and display in an alert box.
+  map.addEventListener('tap', function (evt) {
+    var coord = map.screenToGeo(evt.currentPointer.viewportX,
+            evt.currentPointer.viewportY);
+            // var a = document.getElementById("location");
+            // a.value = coord['lat'],coord['lng'];
+          console.log(coord['lat'],coord['lng']);
+          lat = coord['lat'];
+          lon = coord['lng'];
+          url = "http://127.0.0.1:5000/"+ (coord['lat']).toString()+"_"+(coord['lng']).toString();
+      fetch(url).then((response)=>{
+        return response.text();
+      }).then((data)=>{
+        a = document.getElementById("area");
+        a.value = data;
+        console.log(data);
+      })
+    logEvent('Clicked at ' + Math.abs(coord.lat.toFixed(4)) +
+        ((coord.lat > 0) ? 'N' : 'S') +
+        ' ' + Math.abs(coord.lng.toFixed(4)) +
+         ((coord.lng > 0) ? 'E' : 'W'));
+  });
+}
+
+var platform = new H.service.Platform({
+  'apikey': 'RWr-0dgCEnjgFUYTJeL8nLtn08fpEy06gLPAAlymF8w'
+});
+var defaultLayers = platform.createDefaultLayers();
+var map = new H.Map(document.getElementById('map'),
+  defaultLayers.vector.normal.map,{
+  center: {lat: 17, lng: 78},
+  zoom: 5,
+  pixelRatio: window.devicePixelRatio || 1
+});
+var berlinMarker = new H.map.Marker({
+  lat:17.4961,
+  lng: 78.4401
+});
+map.addObject(berlinMarker);
+var berlinMarker = new H.map.Marker({
+  lat:19.4961,
+  lng: 80.4401
+});
+map.addObject(berlinMarker);
+window.addEventListener('resize', () => map.getViewPort().resize());
+var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+var logContainer = document.createElement('ul');
+logContainer.className ='log';
+logContainer.innerHTML = '<li class="log-entry">Try clicking on the map</li>';
+map.getElement().appendChild(logContainer);
+function logEvent(str) {
+  var entry = document.createElement('li');
+  entry.className = 'log-entry';
+  entry.textContent = str;
+  logContainer.insertBefore(entry, logContainer.firstChild);
+}
+setUpClickListener(map);
+    </script>
+  </body>
+</html>
