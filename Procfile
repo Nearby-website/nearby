@@ -1,1 +1,1 @@
-web gunicorn app1:app
+web gunicorn app1:app --preload -b 0.0.0.0:5000 
