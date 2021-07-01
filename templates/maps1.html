@@ -99,43 +99,28 @@
       </thead>
     </table>
     <br>
-    <!-- <h3>Code</h3>
-    <p>The <code>tap</code> event holds the x and y screen coordinates of the location clicked.
-<<<<<<< Updated upstream
-      These are converted to a latitude and longitude using the <code>map.screenToGeo()</code> method.</p> -->
-    <!-- </script> --> -->
-=======
-      These are converted to a latitude and longitude using the <code>map.screenToGeo()</code> method.</p>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/City_locator_Airport.svg" alt="">
-    </script> -->
->>>>>>> Stashed changes
+    
     <script type="text/javascript">
+    var f = true;
     function addMarkerToGroup(group, coordinate, html) {
-  var marker = new H.map.Marker(coordinate);
+      // var icon = new H.map.Icon('{{url_for("static",filename = "images.jpg")}}');
+      var icon = new H.map.Icon("{{url_for('static',filename='Logo.png')}}");
+  var marker = new H.map.Marker(coordinate,{icon:icon });
   // add custom data to the marker
   marker.setData(html);
+  
   group.addObject(marker);
 }
 
-/**
- * Add two markers showing the position of Liverpool and Manchester City football clubs.
- * Clicking on a marker opens an infobubble which holds HTML content related to the marker.
- * @param {H.Map} map A HERE Map instance within the application
- */
+
 function addInfoBubble(map,data) {
   var group = new H.map.Group();
 
   map.addObject(group);
-
-  // add 'tap' event listener, that opens info bubble, to the group
   group.addEventListener('tap', function (evt) {
-    // event target is the marker itself, group is a parent event target
-    // for all objects that it contains
     var bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
-      // read custom data
       content: evt.target.getData()
     });
-    // show info bubble
     ui.addBubble(bubble);
   }, false);
   for (let i = 0; i < data['list'].length; i++) {
@@ -148,8 +133,10 @@ function addInfoBubble(map,data) {
     var lat = null;
     var lon = null;
     var table = document.getElementById("myTable");
+
     function getdata(){
       console.log(lat,lon);
+      f = false;
       d = document.getElementById("browser");
       dist = document.getElementById("distance")
       url = "http://127.0.0.1:5000/"+ (lat).toString()+"_"+(lon).toString()+"_"+d.value+"_"+dist.value;
@@ -160,21 +147,38 @@ function addInfoBubble(map,data) {
         choice.value = d.value;
         var Parent = document.getElementById("myTable");
         map.removeObjects(map.getObjects ());
+        addCircleToMap(map,lat,lon);
+        map.setCenter({lat:lat,lng:lon});
+        map.setZoom(12);
         while(Parent.hasChildNodes())
         {
           Parent.removeChild(Parent.firstChild);
         }
+        var row = Parent.insertRow(-1);
+        
+            var headerCell = document.createElement("TH");
+            headerCell.innerHTML = "S.No";
+            row.appendChild(headerCell);
+            var headerCell = document.createElement("TH");
+            headerCell.innerHTML = "Entity";
+            row.appendChild(headerCell);
+            var headerCell = document.createElement("TH");
+            headerCell.innerHTML = "Distance";
+            row.appendChild(headerCell);
+        
         // console.log(Parent);
         for (let i = 0; i < data['list'].length; i++) {
            var row = table.insertRow(-1);
            var cell1 = row.insertCell(0);
             var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            cell1.innerText = (i+1).toString();
             var anc = document.createElement('a');
             anc.innerText = data['list'][i][1];
             anc.href = data['list'][i][0];
             anc.target = "_blank";
-            cell1.appendChild(anc);
-            cell2.innerHTML = data['list'][i][3];
+            cell2.appendChild(anc);
+            cell3.innerHTML = data['list'][i][3];
             var berlinMarker = new H.map.Marker({
             lat:data['list'][i][2][0],
             lng: data['list'][i][2][1]
@@ -186,16 +190,18 @@ function addInfoBubble(map,data) {
       })
     }
 function setUpClickListener(map) {
-  // Attach an event listener to map display
-  // obtain the coordinates and display in an alert box.
+  
   map.addEventListener('tap', function (evt) {
     var coord = map.screenToGeo(evt.currentPointer.viewportX,
             evt.currentPointer.viewportY);
-            // var a = document.getElementById("location");
-            // a.value = coord['lat'],coord['lng'];
+          //  addCircleToMap(map,lat1,lon1) 
           console.log(coord['lat'],coord['lng']);
           lat = coord['lat'];
           lon = coord['lng'];
+          // map.removeObjects(map.getObjects ());
+          if(f == true){
+          addCircleToMap(map,lat,lon);
+          }
           url = "http://127.0.0.1:5000/"+ (coord['lat']).toString()+"_"+(coord['lng']).toString();
       fetch(url).then((response)=>{
         return response.text();
@@ -204,10 +210,10 @@ function setUpClickListener(map) {
         a.value = data;
         console.log(data);
       })
-    logEvent('Clicked at ' + Math.abs(coord.lat.toFixed(4)) +
-        ((coord.lat > 0) ? 'N' : 'S') +
-        ' ' + Math.abs(coord.lng.toFixed(4)) +
-         ((coord.lng > 0) ? 'E' : 'W'));
+  //   logEvent('Clicked at ' + Math.abs(coord.lat.toFixed(4)) +
+  //       ((coord.lat > 0) ? 'N' : 'S') +
+  //       ' ' + Math.abs(coord.lng.toFixed(4)) +
+  //        ((coord.lng > 0) ? 'E' : 'W'));
   });
 }
 
@@ -221,26 +227,43 @@ var map = new H.Map(document.getElementById('map'),
   zoom: 5,
   pixelRatio: window.devicePixelRatio || 1
 });
+var icon = new H.map.Icon("{{url_for('static',filename='Logo.png')}}");
 var berlinMarker = new H.map.Marker({
   lat:17.4961,
-  lng: 78.4401
-});
+  lng: 78.4401,
+},{icon: icon});
 map.addObject(berlinMarker);
 
 window.addEventListener('resize', () => map.getViewPort().resize());
 var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-var logContainer = document.createElement('ul');
-logContainer.className ='log';
-logContainer.innerHTML = '<li class="log-entry">Try clicking on the map</li>';
-map.getElement().appendChild(logContainer);
-function logEvent(str) {
-  var entry = document.createElement('li');
-  entry.className = 'log-entry';
-  entry.textContent = str;
-  logContainer.insertBefore(entry, logContainer.firstChild);
-}
+// var logContainer = document.createElement('ul');
+// logContainer.className ='log';
+// logContainer.innerHTML = '<li class="log-entry">Try clicking on the map</li>';
+// map.getElement().appendChild(logContainer);
+// function logEvent(str) {
+//   var entry = document.createElement('li');
+//   entry.className = 'log-entry';
+//   entry.textContent = str;
+//   logContainer.insertBefore(entry, logContainer.firstChild);
+// }
 var ui = H.ui.UI.createDefault(map, defaultLayers);
 setUpClickListener(map);
+
+function addCircleToMap(map,lat1,lon1){
+  map.addObject(new H.map.Circle(
+    // The central point of the circle
+    {lat:lat1, lng:lon1},
+    // The radius of the circle in meters
+    3000,
+    // {
+    //   style: {
+    //     strokeColor: 'rgba(55, 85, 170, 0.6)', // Color of the perimeter
+    //     lineWidth: 2,
+    //     fillColor: 'rgba(0, 128, 0, 0.7)'  // Color of the circle
+    //   }
+    // }
+  ));
+}
     </script>
   </body>
   <!-- JavaScript Bundle with Popper -->
