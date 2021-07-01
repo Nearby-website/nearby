@@ -3,12 +3,12 @@ from geopy.geocoders import Nominatim
 import pickle
 geolocator = Nominatim(user_agent="geoapiExercises")
 app = Flask(__name__)
-air = pickle.load(open("./Files/airports.pkl",'rb'))
-sea = pickle.load(open("./Files/seaports.pkl",'rb'))
-beach = pickle.load(open("./Files/beaches.pkl",'rb'))
-bus = pickle.load(open("./Files/busstop.pkl",'rb'))
-rail = pickle.load(open("./Files/railway.pkl",'rb'))
-lake = pickle.load(open("./Files/lakes.pkl",'rb'))
+air = pickle.load(open("C:/Users/User/Desktop/Nearby/nearby/Files/airports.pkl",'rb'))
+sea = pickle.load(open("C:/Users/User/Desktop/Nearby/nearby/Files/seaports.pkl",'rb'))
+beach = pickle.load(open("C:/Users/User/Desktop/Nearby/nearby/Files/beaches.pkl",'rb'))
+bus = pickle.load(open("C:/Users/User/Desktop/Nearby/nearby/Files/busstop.pkl",'rb'))
+rail = pickle.load(open("C:/Users/User/Desktop/Nearby/nearby/Files/railway.pkl",'rb'))
+lake = pickle.load(open("C:/Users/User/Desktop/Nearby/nearby/Files/lakes.pkl",'rb'))
 from math import radians, cos, sin, asin, sqrt
 def distance(lat1, lat2, lon1, lon2):
 	lon1 = radians(lon1)
