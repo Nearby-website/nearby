@@ -39,6 +39,9 @@ def get_coords(s1):
   except:
     return [1000,1000]
 d = {"Lakes & Reservoirs":lake,"Airports":air,"Railway Stations":rail,"Sea ports":sea,"Beaches":beach,"Bus stops":bus}
+@app.route("/")
+def hello():
+    return render_template("maps1.html")
 @app.route("/<name>")
 def abc(name):
     # print(name)
@@ -80,8 +83,5 @@ def abc(name):
     except:
       return {'status':"failed"}
 
-@app.route("/")
-def hello():
-    return render_template("maps1.html")
-port = int(os.environ.get('PORT', 5000))
-app.run(debug = True,port=port)
+if __name__ == '__main__':
+  app.run(debug = True)
