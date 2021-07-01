@@ -123,6 +123,9 @@ function addInfoBubble(map,data) {
     });
     ui.addBubble(bubble);
   }, false);
+  // addMarkerToGroup(group, {lat:0, lng:0},
+  //   '<div><a target = "_blank" href='+data['list'][0][0]+'>'+ data['list'][0][1]+'</a></div>' +
+  //   '<div>Distance: '+(data['list'][0][3]).toString()+'</div>');
   for (let i = 0; i < data['list'].length; i++) {
     
   addMarkerToGroup(group, {lat: data['list'][i][2][0], lng:data['list'][i][2][1]},
