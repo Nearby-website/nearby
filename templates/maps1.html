@@ -101,9 +101,50 @@
     <br>
     <!-- <h3>Code</h3>
     <p>The <code>tap</code> event holds the x and y screen coordinates of the location clicked.
+<<<<<<< Updated upstream
       These are converted to a latitude and longitude using the <code>map.screenToGeo()</code> method.</p> -->
     <!-- </script> --> -->
+=======
+      These are converted to a latitude and longitude using the <code>map.screenToGeo()</code> method.</p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4f/City_locator_Airport.svg" alt="">
+    </script> -->
+>>>>>>> Stashed changes
     <script type="text/javascript">
+    function addMarkerToGroup(group, coordinate, html) {
+  var marker = new H.map.Marker(coordinate);
+  // add custom data to the marker
+  marker.setData(html);
+  group.addObject(marker);
+}
+
+/**
+ * Add two markers showing the position of Liverpool and Manchester City football clubs.
+ * Clicking on a marker opens an infobubble which holds HTML content related to the marker.
+ * @param {H.Map} map A HERE Map instance within the application
+ */
+function addInfoBubble(map,data) {
+  var group = new H.map.Group();
+
+  map.addObject(group);
+
+  // add 'tap' event listener, that opens info bubble, to the group
+  group.addEventListener('tap', function (evt) {
+    // event target is the marker itself, group is a parent event target
+    // for all objects that it contains
+    var bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+      // read custom data
+      content: evt.target.getData()
+    });
+    // show info bubble
+    ui.addBubble(bubble);
+  }, false);
+  for (let i = 0; i < data['list'].length; i++) {
+    
+  addMarkerToGroup(group, {lat: data['list'][i][2][0], lng:data['list'][i][2][1]},
+    '<div><a target = "_blank" href='+data['list'][i][0]+'>'+ data['list'][i][1]+'</a></div>' +
+    '<div>Distance: '+(data['list'][i][3]).toString()+'</div>');
+  }
+}
     var lat = null;
     var lon = null;
     var table = document.getElementById("myTable");
@@ -118,11 +159,12 @@
         choice = document.getElementById("choice");
         choice.value = d.value;
         var Parent = document.getElementById("myTable");
+        map.removeObjects(map.getObjects ());
         while(Parent.hasChildNodes())
         {
           Parent.removeChild(Parent.firstChild);
         }
-        console.log(Parent);
+        // console.log(Parent);
         for (let i = 0; i < data['list'].length; i++) {
            var row = table.insertRow(-1);
            var cell1 = row.insertCell(0);
@@ -132,7 +174,13 @@
             anc.href = data['list'][i][0];
             anc.target = "_blank";
             cell1.appendChild(anc);
-            cell2.innerHTML = data['list'][i][4];
+            cell2.innerHTML = data['list'][i][3];
+            var berlinMarker = new H.map.Marker({
+            lat:data['list'][i][2][0],
+            lng: data['list'][i][2][1]
+          });
+          map.addObject(berlinMarker);
+         addInfoBubble(map,data);
       }
         console.log(data);
       })
@@ -178,11 +226,7 @@ var berlinMarker = new H.map.Marker({
   lng: 78.4401
 });
 map.addObject(berlinMarker);
-var berlinMarker = new H.map.Marker({
-  lat:19.4961,
-  lng: 80.4401
-});
-map.addObject(berlinMarker);
+
 window.addEventListener('resize', () => map.getViewPort().resize());
 var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 var logContainer = document.createElement('ul');
@@ -195,6 +239,7 @@ function logEvent(str) {
   entry.textContent = str;
   logContainer.insertBefore(entry, logContainer.firstChild);
 }
+var ui = H.ui.UI.createDefault(map, defaultLayers);
 setUpClickListener(map);
     </script>
   </body>

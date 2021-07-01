@@ -40,7 +40,7 @@ def get_coords(s1):
 d = {"Lakes & Reservoirs":lake,"Airports":air,"Railway Stations":rail,"Sea ports":sea,"Beaches":beach,"Bus stops":bus}
 @app.route("/<name>")
 def abc(name):
-    print(name)
+    # print(name)
     l1 = name.split("_")
     if len(l1)==2:
         l2 = l1[1]
@@ -54,25 +54,30 @@ def abc(name):
     l2 = l[1]
     ent = l[2]
     dist = l[3]
-    if(ent in d):
-        Latitude = str(l1)
-        Longitude = str(l2)
-        location = geolocator.reverse(Latitude+","+Longitude)
-        ent = d[ent]
-        # print(location.raw)
-        code = location.raw['address']['country_code']
-        if code  in ent:
-            lis = []
-            for i in ent[code]:
-                lat2,lon2 = get_coords(i[-2])
-                c_dist = distance(int1(Latitude),lat2,int1(Longitude),lon2)
-                # print(c_dist)
-                if c_dist<=int1(dist):
-                    i.append(round(c_dist,1))
-                    lis.append(i)
-            print(lis)
-            return {'status':"success",'list' : lis}
-    return {'status':"failed"}
+    try:
+      if(ent in d):
+          Latitude = str(l1)
+          Longitude = str(l2)
+          location = geolocator.reverse(Latitude+","+Longitude)
+          ent1 = d[ent]
+          # print(location.raw)
+          code = location.raw['address']['country_code']
+          if code  in ent1:
+              lis = []
+              # print(Latitude,Longitude)
+              # print(ent1[code][10])
+              for i in ent1[code]:
+                  lat2,lon2 = get_coords(i[-2])
+                  c_dist = distance(int1(Latitude),lat2,int1(Longitude),lon2)
+                  # print(c_dist)
+                  if c_dist<=int1(dist):
+                      i1 = [i[0],i[1],get_coords(i[2]),round(c_dist,1)]
+                      lis.append(i1)
+              # print(lis)
+              return {'status':"success",'list' : lis}
+      return {'status':"failed"}
+    except:
+      return {'status':"failed"}
 
 @app.route("/")
 def hello():
