@@ -1,5 +1,6 @@
 from flask import Flask,render_template
 from geopy.geocoders import Nominatim
+import os
 import pickle
 geolocator = Nominatim(user_agent="geoapiExercises")
 app = Flask(__name__)
@@ -82,4 +83,5 @@ def abc(name):
 @app.route("/")
 def hello():
     return render_template("maps1.html")
-app.run(debug = True)
+port = int(os.environ.get('PORT', 5000))
+app.run(debug = True,port=port)
